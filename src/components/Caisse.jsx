@@ -411,25 +411,17 @@ export default function Caisse({ session }) {
                 </div>
               )}
 
-              {/* Paiement */}
+              {/* Paiement — espèces uniquement */}
               <div className="form-group">
                 <label className="form-label">Paiement</label>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {[['especes', '💵 Espèces'], ['carte', '💳 Carte'], ['virement', '🏦 Virement']].map(([val, label]) => (
-                    <button key={val} type="button"
-                      style={{
-                        flex: 1, padding: '9px 8px', borderRadius: '10px',
-                        border: `2px solid ${form.payment_method === val ? 'var(--accent)' : 'var(--border)'}`,
-                        background: form.payment_method === val ? 'var(--accent-dim)' : 'var(--card-2)',
-                        cursor: 'pointer', fontSize: '13px',
-                        fontWeight: form.payment_method === val ? 700 : 400,
-                        color: form.payment_method === val ? 'var(--accent-2)' : 'var(--text)',
-                        transition: 'all 0.15s',
-                      }}
-                      onClick={() => setForm({ ...form, payment_method: val })}>
-                      {label}
-                    </button>
-                  ))}
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  background: 'var(--card-2)', border: '1px solid var(--border)',
+                  borderRadius: '10px', padding: '12px 16px',
+                }}>
+                  <span style={{ fontSize: '20px' }}>💵</span>
+                  <span style={{ fontWeight: 600, fontSize: '14px' }}>Espèces</span>
+                  <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text-3)' }}>Seul mode accepté</span>
                 </div>
               </div>
 
