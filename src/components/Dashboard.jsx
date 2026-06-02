@@ -74,13 +74,15 @@ export default function Dashboard({ session, setCurrentPage }) {
       { data: allClients },
       { data: recent },
       { data: yearV },
+      { data: aboVisits },
     ] = await Promise.all([
       supabase.from('salon_visits').select('total').eq('user_id', uid).eq('visit_date', today),
-      supabase.from('salon_visits').select('total, client_id').eq('user_id', uid).gte('visit_date', monthStart),
+      supabase.from('salon_visits').select('id, total, client_id').eq('user_id', uid).gte('visit_date', monthStart),
       supabase.from('salon_visits').select('total').eq('user_id', uid).gte('visit_date', lastMonthStart).lte('visit_date', lastMonthEnd),
       supabase.from('salon_clients').select('id, name').eq('user_id', uid),
       supabase.from('salon_visits').select('id, visit_date, total, payment_method, salon_clients(name)').eq('user_id', uid).order('visit_date', { ascending: false }).limit(5),
       supabase.from('salon_visits').select('visit_date, total').eq('user_id', uid).gte('visit_date', `${now.getFullYear()}-01-01`),
+      supabase.from('salon_visit_services').select('visit_id, service_name').in('service_name', ['Standard','Premium','VIP']),
     ])
 
     const caToday    = (todayV || []).reduce((s, v) => s + parseFloat(v.total), 0)
@@ -111,7 +113,11 @@ export default function Dashboard({ session, setCurrentPage }) {
         visits: (monthV || []).filter(v => v.client_id === id).length,
       }))
 
-    setStats({ caToday, clientsToday: (todayV || []).length, caMonth, caLastMonth, clientsMonth, clientsLastMonth })
+    // Abonnements du mois (visites qui ont un service Standard/Premium/VIP)
+    const monthVisitIds = new Set((monthV || []).map(v => v.id).filter(Boolean))
+    const abosMonth = (aboVisits || []).filter(a => monthVisitIds.has(a.visit_id)).length
+
+    setStats({ caToday, clientsToday: (todayV || []).length, caMonth, caLastMonth, clientsMonth, clientsLastMonth, abosMonth })
     setRecentVisits(recent || [])
     setTopClients(topList)
     setBarData(byMonth)
@@ -197,16 +203,16 @@ export default function Dashboard({ session, setCurrentPage }) {
           </div>
         </div>
 
-        {/* Ventes */}
+        {/* Abonnements */}
         <div className="stat-card">
           <div className="stat-card-top">
-            <div className="stat-icon-wrapper">✂️</div>
-            <span className="stat-label">Ventes</span>
+            <div className="stat-icon-wrapper">👑</div>
+            <span className="stat-label">Abonnements</span>
           </div>
-          <div className="stat-value">{recentVisits.length > 0 ? stats.clientsMonth : 0}</div>
+          <div className="stat-value">{stats.abosMonth || 0}</div>
           <div className="stat-trend">
             <span className="stat-trend-label">ce mois</span>
-            <span className="trend-chip up">actif</span>
+            {stats.abosMonth > 0 && <span className="trend-chip up">actif</span>}
           </div>
         </div>
       </div>
