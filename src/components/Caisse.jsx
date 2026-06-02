@@ -305,7 +305,7 @@ export default function Caisse({ session }) {
                       className="form-input"
                       type="number"
                       min="1"
-                      step="100"
+                      step="any"
                       placeholder="1000"
                       value={customPrice}
                       onChange={e => setCustomPrice(e.target.value)}
