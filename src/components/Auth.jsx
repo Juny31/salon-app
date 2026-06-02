@@ -13,7 +13,11 @@ export default function Auth() {
     setLoading(true)
     setMessage('')
     const { error } = isSignUp
-      ? await supabase.auth.signUp({ email, password })
+      ? await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: 'https://juny31.github.io/salon-app/' },
+        })
       : await supabase.auth.signInWithPassword({ email, password })
     if (error) setMessage(error.message)
     else if (isSignUp) setMessage('Compte créé ! Vérifiez vos emails.')
