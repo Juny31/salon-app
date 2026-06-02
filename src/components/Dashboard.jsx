@@ -5,7 +5,7 @@ import {
   ResponsiveContainer, Cell, LinearGradient, defs,
 } from 'recharts'
 
-const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n || 0)
+const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'decimal', maximumFractionDigits: 0 }).format(Math.round(n || 0)) + ' FCFA'
 const fmtShort = (n) => {
   if (n >= 1000) return (n / 1000).toFixed(1) + 'k'
   return Math.round(n)

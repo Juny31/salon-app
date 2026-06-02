@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n || 0)
+const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'decimal', maximumFractionDigits: 0 }).format(Math.round(n || 0)) + ' FCFA'
 const CATEGORIES_SVC = ['Coupe', 'Couleur', 'Soin', 'Coiffage', 'Défrisage', 'Tresse / Natte', 'Extension', 'Autre']
 
 export default function Services({ session }) {
