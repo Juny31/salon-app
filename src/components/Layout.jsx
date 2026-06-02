@@ -2,12 +2,20 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 const NAV_ITEMS = [
-  { id: 'dashboard', icon: '📊', label: 'Tableau de bord',  short: 'Tableau' },
-  { id: 'caisse',    icon: '💰', label: 'Caisse / Ventes',  short: 'Caisse'  },
-  { id: 'clients',   icon: '👤', label: 'Clients',           short: 'Clients' },
-  { id: 'stock',     icon: '📦', label: 'Stock produits',    short: 'Stock'   },
-  { id: 'reports',   icon: '📈', label: 'Rapports',          short: 'Rapports'},
-  { id: 'services',  icon: '✂️', label: 'Mes services',      short: 'Services'},
+  { id: 'dashboard', label: 'Dashboard'  },
+  { id: 'caisse',    label: 'Caisse'     },
+  { id: 'clients',   label: 'Clients'    },
+  { id: 'stock',     label: 'Stock'      },
+  { id: 'reports',   label: 'Rapports'   },
+  { id: 'services',  label: 'Services'   },
+]
+
+const NAV_ICONS = [
+  { id: 'dashboard', icon: '📊', short: 'Tableau' },
+  { id: 'caisse',    icon: '💰', short: 'Caisse'  },
+  { id: 'clients',   icon: '👤', short: 'Clients' },
+  { id: 'stock',     icon: '📦', short: 'Stock'   },
+  { id: 'reports',   icon: '📈', short: 'Rapports'},
 ]
 
 export default function Layout({ children, currentPage, setCurrentPage, session }) {
@@ -16,67 +24,69 @@ export default function Layout({ children, currentPage, setCurrentPage, session 
 
   return (
     <div className="app-layout">
-      <aside className="sidebar">
-        <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">✂️</div>
-          <h2>SalonApp</h2>
-        </div>
-        <nav className="sidebar-nav">
-          {NAV_ITEMS.map(item => (
-            <button key={item.id}
-              className={`nav-item ${currentPage === item.id ? 'active' : ''}`}
-              onClick={() => setCurrentPage(item.id)}>
-              <span className="nav-item-icon">{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-footer">
-          <div className="user-info">
-            <div className="user-avatar">{userInitial}</div>
-            <span className="user-email">{session?.user?.email}</span>
-          </div>
-          <button className="btn btn-ghost" style={{ width: '100%', fontSize: '13px' }}
-            onClick={() => supabase.auth.signOut()}>
-            🚪 Déconnexion
-          </button>
-        </div>
-      </aside>
 
+      {/* ── Top Navigation ── */}
       <header className="mobile-header">
+
+        {/* Logo */}
         <div className="mobile-header-logo">
           <div className="mobile-header-logo-icon">✂️</div>
           <span className="mobile-header-title">SalonApp</span>
         </div>
-        <div style={{ position: 'relative' }}>
-          <button className="mobile-user-btn" onClick={() => setShowUserMenu(v => !v)}>
-            {userInitial}
-          </button>
-          {showUserMenu && (
-            <>
-              <div className="mobile-user-overlay" onClick={() => setShowUserMenu(false)} />
-              <div className="mobile-user-menu">
-                <div className="mobile-user-email">{session?.user?.email}</div>
-                <button className="btn btn-ghost"
-                  style={{ width: '100%', fontSize: '13px', marginTop: '8px' }}
-                  onClick={() => supabase.auth.signOut()}>
-                  🚪 Déconnexion
-                </button>
-              </div>
-            </>
-          )}
+
+        {/* Nav items — center */}
+        <nav className="top-nav">
+          {NAV_ITEMS.map(item => (
+            <button
+              key={item.id}
+              className={`top-nav-item ${currentPage === item.id ? 'active' : ''}`}
+              onClick={() => setCurrentPage(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Right actions */}
+        <div className="top-nav-right">
+          <button className="top-nav-icon-btn" title="Recherche">🔍</button>
+          <button className="top-nav-icon-btn" title="Notifications">🔔</button>
+          <div style={{ position: 'relative' }}>
+            <button className="mobile-user-btn" onClick={() => setShowUserMenu(v => !v)}>
+              {userInitial}
+            </button>
+            {showUserMenu && (
+              <>
+                <div className="mobile-user-overlay" onClick={() => setShowUserMenu(false)} />
+                <div className="mobile-user-menu">
+                  <div className="mobile-user-email">{session?.user?.email}</div>
+                  <button
+                    className="btn btn-ghost"
+                    style={{ width: '100%', fontSize: '13px', marginTop: '4px', justifyContent: 'flex-start' }}
+                    onClick={() => supabase.auth.signOut()}
+                  >
+                    🚪 Déconnexion
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
+      {/* ── Main content ── */}
       <main className="main-content">{children}</main>
 
+      {/* ── Bottom nav (mobile only) ── */}
       <nav className="bottom-nav">
-        {NAV_ITEMS.slice(0, 5).map(item => (
-          <button key={item.id}
+        {NAV_ICONS.map(item => (
+          <button
+            key={item.id}
             className={`bottom-nav-item ${currentPage === item.id ? 'active' : ''}`}
-            onClick={() => setCurrentPage(item.id)}>
+            onClick={() => setCurrentPage(item.id)}
+          >
             <span className="bottom-nav-icon">{item.icon}</span>
-            {item.short.split(' ')[0]}
+            {item.short}
           </button>
         ))}
       </nav>
