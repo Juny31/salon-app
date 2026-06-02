@@ -30,8 +30,16 @@ export default function Caisse({ session }) {
   const [saving, setSaving]     = useState(false)
 
   // Ligne de saisie libre
-  const [customName,  setCustomName]  = useState('Coupe')
-  const [customPrice, setCustomPrice] = useState('1000')
+  const [customName,  setCustomName]  = useState('')
+  const [customPrice, setCustomPrice] = useState('')
+
+  // Accès rapide — services fréquents
+  const QUICK_SERVICES = [
+    { name: 'Coupe',    price: 1000,  emoji: '✂️' },
+    { name: 'Standard', price: 3000,  emoji: '⭐',  badge: 'Abonnement' },
+    { name: 'Premium',  price: 7000,  emoji: '💎',  badge: 'Abonnement' },
+    { name: 'VIP',      price: 30000, emoji: '👑',  badge: 'Abonnement' },
+  ]
 
   const uid   = session.user.id
   const years = Array.from({ length: 3 }, (_, i) => now.getFullYear() - i)
@@ -64,12 +72,25 @@ export default function Caisse({ session }) {
     setServices(s || [])
   }
 
-  // Ajouter depuis le catalogue
+  // Ajouter depuis le catalogue ou accès rapide
   const addToCart = (svc) => {
     setCart(prev => {
-      const existing = prev.find(i => i.service_id === svc.id)
-      if (existing) return prev.map(i => i.service_id === svc.id ? { ...i, quantity: i.quantity + 1 } : i)
-      return [...prev, { service_id: svc.id, service_name: svc.name, price: parseFloat(svc.price), quantity: 1 }]
+      // Recherche par nom + prix pour les quick services
+      const existing = prev.find(i =>
+        i.service_id === svc.id ||
+        (i.service_name === svc.name && i.price === parseFloat(svc.price))
+      )
+      if (existing) return prev.map(i =>
+        (i.service_id === svc.id || (i.service_name === svc.name && i.price === parseFloat(svc.price)))
+          ? { ...i, quantity: i.quantity + 1 }
+          : i
+      )
+      return [...prev, {
+        service_id: svc.id,
+        service_name: svc.name,
+        price: parseFloat(svc.price),
+        quantity: 1,
+      }]
     })
   }
 
@@ -262,10 +283,54 @@ export default function Caisse({ session }) {
                 </div>
               </div>
 
-              {/* ── Catalogue de services (si configurés) ── */}
+              {/* ── Accès rapide ── */}
+              <div className="form-group">
+                <label className="form-label">Accès rapide</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '4px' }}>
+                  {QUICK_SERVICES.map(s => {
+                    const inCart = cart.find(i => i.service_name === s.name && i.price === s.price)
+                    return (
+                      <button key={s.name} type="button"
+                        onClick={() => addToCart({ id: `quick_${s.name}`, name: s.name, price: s.price })}
+                        style={{
+                          padding: '12px 8px',
+                          borderRadius: '12px',
+                          border: `1.5px solid ${inCart ? 'var(--accent)' : 'var(--border)'}`,
+                          background: inCart ? 'var(--accent-dim)' : 'var(--card-2)',
+                          cursor: 'pointer',
+                          textAlign: 'center',
+                          transition: 'all 0.15s',
+                          position: 'relative',
+                        }}>
+                        {s.badge && (
+                          <span style={{
+                            position: 'absolute', top: '-8px', left: '50%', transform: 'translateX(-50%)',
+                            background: 'var(--amber)', color: '#000', fontSize: '8px', fontWeight: 700,
+                            padding: '1px 6px', borderRadius: '4px', whiteSpace: 'nowrap', letterSpacing: '0.3px',
+                          }}>
+                            {s.badge.toUpperCase()}
+                          </span>
+                        )}
+                        <div style={{ fontSize: '20px', marginBottom: '4px' }}>{s.emoji}</div>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: inCart ? 'var(--accent-2)' : 'var(--text)' }}>
+                          {s.name}
+                        </div>
+                        <div style={{ fontSize: '11px', color: inCart ? 'var(--accent-2)' : 'var(--text-3)', marginTop: '2px', fontVariantNumeric: 'tabular-nums' }}>
+                          {fmt(s.price)}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+                <p style={{ fontSize: '11px', color: 'var(--text-3)', marginTop: '6px' }}>
+                  Appuyez pour ajouter · tapez à nouveau pour augmenter la quantité
+                </p>
+              </div>
+
+              {/* ── Catalogue (si configuré) ── */}
               {services.length > 0 && (
                 <div className="form-group">
-                  <label className="form-label">Catalogue ✂️</label>
+                  <label className="form-label">Autres services</label>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                     {services.map(s => (
                       <button key={s.id} type="button"
@@ -284,46 +349,36 @@ export default function Caisse({ session }) {
                 </div>
               )}
 
-              {/* ── Saisie libre — toujours disponible ── */}
+              {/* ── Saisie libre ── */}
               <div className="form-group">
-                <label className="form-label">
-                  {services.length > 0 ? 'Ou saisie libre' : 'Service ✂️'}
-                </label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
-                  <div style={{ flex: 2 }}>
-                    <input
-                      className="form-input"
-                      type="text"
-                      placeholder="Ex: Coupe, Rasage, Tresse…"
-                      value={customName}
-                      onChange={e => setCustomName(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomLine())}
-                    />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <input
-                      className="form-input"
-                      type="number"
-                      min="1"
-                      step="any"
-                      placeholder="1000"
-                      value={customPrice}
-                      onChange={e => setCustomPrice(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomLine())}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    style={{ padding: '10px 16px', borderRadius: '10px', flexShrink: 0 }}
-                    onClick={addCustomLine}
-                  >
-                    + Ajouter
+                <label className="form-label">Saisie libre</label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input
+                    className="form-input"
+                    type="text"
+                    placeholder="Nom du service…"
+                    value={customName}
+                    style={{ flex: 2 }}
+                    onChange={e => setCustomName(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomLine())}
+                  />
+                  <input
+                    className="form-input"
+                    type="number"
+                    min="1"
+                    step="any"
+                    placeholder="Montant FCFA"
+                    value={customPrice}
+                    style={{ flex: 1 }}
+                    onChange={e => setCustomPrice(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustomLine())}
+                  />
+                  <button type="button" className="btn btn-secondary"
+                    style={{ flexShrink: 0, borderRadius: '10px' }}
+                    onClick={addCustomLine}>
+                    +
                   </button>
                 </div>
-                <p style={{ fontSize: '11.5px', color: 'var(--text-3)', marginTop: '5px' }}>
-                  Montant en FCFA — appuyez sur Entrée ou cliquez + Ajouter
-                </p>
               </div>
 
               {/* ── Panier ── */}

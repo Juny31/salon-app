@@ -130,8 +130,8 @@ export default function Services({ session }) {
                     onChange={e => setForm({ ...form, duration_minutes: e.target.value })} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Prix (€) *</label>
-                  <input className="form-input" type="number" min="0" step="0.5" placeholder="0,00" value={form.price}
+                  <label className="form-label">Prix (FCFA) *</label>
+                  <input className="form-input" type="number" min="0" step="any" placeholder="1000" value={form.price}
                     onChange={e => setForm({ ...form, price: e.target.value })} required />
                 </div>
               </div>
