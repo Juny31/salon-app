@@ -22,7 +22,7 @@ export default function Clients({ session }) {
   const [clientVisits, setClientVisits] = useState([])
   const [showForm, setShowForm]      = useState(false)
   const [search, setSearch]          = useState('')
-  const [form, setForm]              = useState({ name: '', phone: '', notes: '' })
+  const [form, setForm]              = useState({ name: '', phone: '', notes: '', abonnement: '' })
   const [saving, setSaving]          = useState(false)
   const uid = session.user.id
 
@@ -37,7 +37,7 @@ export default function Clients({ session }) {
     // Tous les clients
     const { data: clients } = await supabase
       .from('salon_clients')
-      .select('id, name, phone, notes')
+      .select('id, name, phone, notes, abonnement')
       .eq('user_id', uid)
       .order('name')
 
@@ -83,24 +83,36 @@ export default function Clients({ session }) {
       }
     }
 
-    // Abonnés = clients avec un tier détecté
-    const subs = Object.values(clientMap)
-      .filter(c => c.subscriptionTier)
-      .map(c => ({
-        ...c,
-        ...(clients || []).find(cl => cl.id === c.id),
-        lastVisit: c.visits[0]?.visit_date || null,
-        totalVisits: c.visits.length,
-        usedThisMonth: c.visitsThisMonth > 0,
-      }))
-      .sort((a, b) => SUBSCRIPTION_TIERS.indexOf(a.subscriptionTier) - SUBSCRIPTION_TIERS.indexOf(b.subscriptionTier))
+    // Abonnés = clients avec abonnement renseigné dans leur profil
+    const subs = (clients || [])
+      .filter(c => c.abonnement)
+      .map(c => {
+        const cd = clientMap[c.id] || { totalSpent: 0, visits: [], visitsThisMonth: 0 }
+        return {
+          ...c,
+          subscriptionTier: c.abonnement,
+          totalSpent: cd.totalSpent,
+          totalVisits: cd.visits.length,
+          visitsThisMonth: cd.visitsThisMonth,
+          lastVisit: cd.visits[0]?.visit_date || null,
+          usedThisMonth: cd.visitsThisMonth > 0,
+        }
+      })
+      .sort((a, b) => SUBSCRIPTION_TIERS.indexOf(a.abonnement) - SUBSCRIPTION_TIERS.indexOf(b.abonnement))
 
     setSubscribers(subs)
     setLoading(false)
   }
 
   const selectClient = async (client) => {
-    setSelected(client)
+    // Récupérer les données fraîches du client (avec abonnement)
+    const { data: freshClient } = await supabase
+      .from('salon_clients')
+      .select('id, name, phone, notes, abonnement')
+      .eq('id', client.id)
+      .single()
+    const merged = { ...client, ...(freshClient || {}) }
+    setSelected({ ...merged, subscriptionTier: merged.abonnement || merged.subscriptionTier })
     const { data } = await supabase
       .from('salon_visits')
       .select('*, salon_visit_services(service_name, price, quantity)')
@@ -113,7 +125,7 @@ export default function Clients({ session }) {
     e.preventDefault()
     setSaving(true)
     const { error } = await supabase.from('salon_clients').insert({ ...form, user_id: uid })
-    if (!error) { setShowForm(false); setForm({ name: '', phone: '', notes: '' }); fetchData() }
+    if (!error) { setShowForm(false); setForm({ name: '', phone: '', notes: '', abonnement: '' }); fetchData() }
     setSaving(false)
   }
 
@@ -138,19 +150,23 @@ export default function Clients({ session }) {
             {selected.phone && <p className="page-subtitle">📞 {selected.phone}</p>}
           </div>
         </div>
-        {selected.subscriptionTier && (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            background: TIER_STYLE[selected.subscriptionTier].bg,
-            border: `1px solid ${TIER_STYLE[selected.subscriptionTier].border}`,
-            borderRadius: '12px', padding: '8px 16px',
-          }}>
-            <span style={{ fontSize: '18px' }}>{TIER_STYLE[selected.subscriptionTier].emoji}</span>
-            <span style={{ fontWeight: 700, color: TIER_STYLE[selected.subscriptionTier].color, fontSize: '15px' }}>
-              Abonnement {selected.subscriptionTier}
-            </span>
-          </div>
-        )}
+        {(selected.abonnement || selected.subscriptionTier) && (() => {
+          const tier = selected.abonnement || selected.subscriptionTier
+          const ts = TIER_STYLE[tier]
+          return ts ? (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              background: ts.bg,
+              border: `1px solid ${ts.border}`,
+              borderRadius: '12px', padding: '8px 16px',
+            }}>
+              <span style={{ fontSize: '18px' }}>{ts.emoji}</span>
+              <span style={{ fontWeight: 700, color: ts.color, fontSize: '15px' }}>
+                Abonnement {tier}
+              </span>
+            </div>
+          ) : null
+        })()}
       </div>
 
       {/* Stats abonné */}
@@ -181,15 +197,17 @@ export default function Clients({ session }) {
           </div>
           <div className="stat-value" style={{ fontSize: '20px' }}>{fmt(selected.totalSpent || 0)}</div>
         </div>
-        <div className="stat-card">
+        <div className="stat-card" style={selected.abonnement ? { background: TIER_STYLE[selected.abonnement]?.bg, border: `1px solid ${TIER_STYLE[selected.abonnement]?.border}` } : {}}>
           <div className="stat-card-top">
-            <div className="stat-icon-wrapper">🕐</div>
-            <span className="stat-label">Dernière visite</span>
+            <div className="stat-icon-wrapper" style={{ background: 'rgba(0,0,0,0.15)', fontSize: '18px' }}>
+              {selected.abonnement ? TIER_STYLE[selected.abonnement]?.emoji : '—'}
+            </div>
+            <span className="stat-label" style={{ color: selected.abonnement ? TIER_STYLE[selected.abonnement]?.color : 'var(--text-3)' }}>
+              Abonnement
+            </span>
           </div>
-          <div className="stat-value" style={{ fontSize: '16px' }}>
-            {selected.lastVisit
-              ? new Date(selected.lastVisit).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
-              : '—'}
+          <div className="stat-value" style={{ fontSize: '18px', color: selected.abonnement ? TIER_STYLE[selected.abonnement]?.color : 'var(--text-3)' }}>
+            {selected.abonnement || 'Aucun'}
           </div>
         </div>
       </div>
@@ -446,6 +464,33 @@ export default function Clients({ session }) {
                 <input className="form-input" type="tel" placeholder="06 xx xx xx xx" value={form.phone}
                   onChange={e => setForm({ ...form, phone: e.target.value })} />
               </div>
+              {/* Abonnement */}
+              <div className="form-group">
+                <label className="form-label">👑 Abonnement</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                  {[
+                    { value: '', label: 'Aucun', emoji: '—', color: 'var(--text-3)', bg: 'var(--card-2)', border: 'var(--border)' },
+                    { value: 'Standard', label: 'Standard', emoji: '⭐', color: '#60a5fa', bg: 'rgba(96,165,250,0.10)', border: 'rgba(96,165,250,0.30)' },
+                    { value: 'Premium',  label: 'Premium',  emoji: '💎', color: '#a78bfa', bg: 'rgba(167,139,250,0.10)', border: 'rgba(167,139,250,0.30)' },
+                    { value: 'VIP',      label: 'VIP',      emoji: '👑', color: '#f59e0b', bg: 'rgba(245,158,11,0.10)',  border: 'rgba(245,158,11,0.30)'  },
+                  ].map(opt => (
+                    <button key={opt.value} type="button"
+                      onClick={() => setForm({ ...form, abonnement: opt.value })}
+                      style={{
+                        padding: '10px 6px', borderRadius: '10px', textAlign: 'center',
+                        border: `1.5px solid ${form.abonnement === opt.value ? opt.border : 'var(--border)'}`,
+                        background: form.abonnement === opt.value ? opt.bg : 'var(--card-2)',
+                        cursor: 'pointer', transition: 'all 0.15s',
+                      }}>
+                      <div style={{ fontSize: '18px', marginBottom: '3px' }}>{opt.emoji}</div>
+                      <div style={{ fontSize: '11px', fontWeight: 600, color: form.abonnement === opt.value ? opt.color : 'var(--text-2)' }}>
+                        {opt.label}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="form-group">
                 <label className="form-label">Notes</label>
                 <textarea className="form-input" rows={2} value={form.notes}
