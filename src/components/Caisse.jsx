@@ -246,7 +246,7 @@ export default function Caisse({ session }) {
                   )}
                 </div>
                 <span className="transaction-amount income">+{fmt(v.total)}</span>
-                <button className="btn-icon" onClick={() => handleDelete(v.id)} disabled={deleting === v.id} title="Supprimer">
+                <button className="btn-icon" onClick={() => handleDelete(v.id)} disabled={deleting === v.id} aria-label="Supprimer la vente">
                   {deleting === v.id ? '⏳' : '🗑️'}
                 </button>
               </div>
@@ -263,7 +263,7 @@ export default function Caisse({ session }) {
           <div className="modal" style={{ maxWidth: '540px', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">✂️ Nouvelle vente</h2>
-              <button className="modal-close" onClick={() => resetForm()}>✕</button>
+              <button className="modal-close" aria-label="Fermer" onClick={() => resetForm()}>✕</button>
             </div>
 
             <form onSubmit={handleSave}>

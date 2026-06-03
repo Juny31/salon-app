@@ -457,7 +457,7 @@ export default function Clients({ session }) {
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">👤 Nouveau client</h2>
-              <button className="modal-close" onClick={() => setShowForm(false)}>✕</button>
+              <button className="modal-close" aria-label="Fermer" onClick={() => setShowForm(false)}>✕</button>
             </div>
             <form onSubmit={handleSave}>
               <div className="form-group">

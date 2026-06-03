@@ -36,7 +36,7 @@ export default function Layout({ children, currentPage, setCurrentPage, session 
         </div>
 
         {/* Nav items — center */}
-        <nav className="top-nav">
+        <nav className="top-nav" aria-label="Navigation principale">
           {NAV_ITEMS.map(item => (
             <button
               key={item.id}
@@ -75,10 +75,10 @@ export default function Layout({ children, currentPage, setCurrentPage, session 
       </header>
 
       {/* ── Main content ── */}
-      <main className="main-content">{children}</main>
+      <main className="main-content" role="main">{children}</main>
 
       {/* ── Bottom nav (mobile only) ── */}
-      <nav className="bottom-nav">
+      <nav className="bottom-nav" aria-label="Navigation mobile">
         {BOTTOM_NAV.map(item => (
           <button
             key={item.id}
