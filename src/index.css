@@ -761,6 +761,8 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); line
 
 .toggle-btn { background: none; border: none; cursor: pointer; font-size: 15px; padding: 5px 7px; border-radius: var(--r-xs); transition: all var(--t-fast); display: flex; align-items: center; }
 .toggle-btn:hover { background: rgba(255,255,255,0.06); }
+.toggle-btn.svc-on  { color: var(--green); }
+.toggle-btn.svc-off { color: var(--text-3); }
 
 .recurring-list { display: flex; flex-direction: column; }
 .recurring-item { display: flex; align-items: center; gap: 14px; padding: 15px 0; border-bottom: 1px solid var(--border-subtle); }

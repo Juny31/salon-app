@@ -93,11 +93,15 @@ export default function Services({ session }) {
                   <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>⏱ {s.duration_minutes} min</div>
                 </div>
                 <span style={{ fontWeight: 700, color: 'var(--success)', fontSize: '16px' }}>{fmt(s.price)}</span>
-                <button className="btn btn-sm btn-ghost" onClick={() => openEdit(s)} title="Modifier">✏️</button>
-                <button className={`toggle-btn ${s.is_active ? 'on' : 'off'}`} onClick={() => handleToggle(s)} title={s.is_active ? 'Désactiver' : 'Activer'} style={{ fontSize: '14px' }}>
+                <button className="btn btn-sm btn-ghost" onClick={() => openEdit(s)} aria-label={`Modifier ${s.name}`}>✏️</button>
+                <button
+                  className={`toggle-btn ${s.is_active ? 'svc-on' : 'svc-off'}`}
+                  onClick={() => handleToggle(s)}
+                  aria-label={s.is_active ? `Désactiver ${s.name}` : `Activer ${s.name}`}
+                  style={{ fontSize: '14px' }}>
                   {s.is_active ? '✅' : '⏸️'}
                 </button>
-                <button className="btn-icon" onClick={() => handleDelete(s.id)} title="Supprimer">🗑️</button>
+                <button className="btn-icon" onClick={() => handleDelete(s.id)} aria-label={`Supprimer ${s.name}`}>🗑️</button>
               </div>
             ))}
           </div>
@@ -109,7 +113,7 @@ export default function Services({ session }) {
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">{editing ? '✏️ Modifier le service' : '✂️ Nouveau service'}</h2>
-              <button className="modal-close" onClick={() => setShowForm(false)}>✕</button>
+              <button className="modal-close" aria-label="Fermer" onClick={() => setShowForm(false)}>✕</button>
             </div>
             <form onSubmit={handleSave}>
               <div className="form-group">

@@ -86,8 +86,10 @@ export default function Reports({ session }) {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">Rapports</h1>
-        <p className="page-subtitle">Analyse de votre activité</p>
+        <div>
+          <h1 className="page-title">Rapports</h1>
+          <p className="page-subtitle">Analyse de votre activité</p>
+        </div>
       </div>
 
       <div className="transactions-controls">
@@ -105,32 +107,32 @@ export default function Reports({ session }) {
       {/* KPI */}
       <div className="stats-grid" style={{ marginBottom: '24px' }}>
         <div className="stat-card">
-          <div className="stat-icon-wrapper" style={{ background: '#D1FAE5' }}>💰</div>
-          <div className="stat-info">
+          <div className="stat-card-top">
+            <div className="stat-icon-wrapper">💰</div>
             <span className="stat-label">CA du mois</span>
-            <span className="stat-value" style={{ color: 'var(--success)' }}>{fmt(totalCA)}</span>
           </div>
+          <div className="stat-value" style={{ fontSize: '26px', color: 'var(--success)' }}>{fmt(totalCA)}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon-wrapper" style={{ background: '#EEF2FF' }}>👤</div>
-          <div className="stat-info">
+          <div className="stat-card-top">
+            <div className="stat-icon-wrapper">👤</div>
             <span className="stat-label">Clients servis</span>
-            <span className="stat-value">{visits.length}</span>
           </div>
+          <div className="stat-value">{visits.length}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon-wrapper" style={{ background: '#FEF3C7' }}>📊</div>
-          <div className="stat-info">
+          <div className="stat-card-top">
+            <div className="stat-icon-wrapper">📊</div>
             <span className="stat-label">Panier moyen</span>
-            <span className="stat-value">{fmt(avgBasket)}</span>
           </div>
+          <div className="stat-value" style={{ fontSize: '26px' }}>{fmt(avgBasket)}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon-wrapper" style={{ background: '#F3E8FF' }}>✂️</div>
-          <div className="stat-info">
+          <div className="stat-card-top">
+            <div className="stat-icon-wrapper">✂️</div>
             <span className="stat-label">Nb prestations</span>
-            <span className="stat-value">{Object.values(serviceCount).reduce((s, v) => s + v, 0)}</span>
           </div>
+          <div className="stat-value">{Object.values(serviceCount).reduce((s, v) => s + v, 0)}</div>
         </div>
       </div>
 
@@ -140,13 +142,17 @@ export default function Reports({ session }) {
           <h2 className="card-title">CA mensuel {selectedYear}</h2>
         </div>
         <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={barData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#94a3b8' }} />
-            <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={v => v > 0 ? `${v}€` : '0'} />
-            <Tooltip formatter={v => fmt(v)} contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#f1f5f9' }} />
-            <Bar dataKey="ca" fill="#6366F1" radius={[4, 4, 0, 0]}
-              label={{ position: 'top', fontSize: 10, fill: '#94a3b8', formatter: v => v > 0 ? `${v}€` : '' }} />
+          <BarChart data={barData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }} barCategoryGap="30%">
+            <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
+            <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-3)' }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 11, fill: 'var(--text-3)' }} axisLine={false} tickLine={false}
+              tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v > 0 ? String(v) : '0'} />
+            <Tooltip
+              formatter={v => [fmt(v), 'CA']}
+              contentStyle={{ background: 'rgba(17,17,19,0.97)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: '#f2f2f7', fontSize: '13px' }}
+              cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+            />
+            <Bar dataKey="ca" fill="#e8391d" radius={[6, 6, 3, 3]} maxBarSize={36} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -167,7 +173,7 @@ export default function Reports({ session }) {
                     <Pie data={topServices} dataKey="ca" nameKey="name" cx="50%" cy="50%" outerRadius={60} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false} fontSize={10}>
                       {topServices.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                     </Pie>
-                    <Tooltip formatter={v => fmt(v)} contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#f1f5f9' }} />
+                    <Tooltip formatter={v => fmt(v)} contentStyle={{ background: 'rgba(17,17,19,0.97)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: '#f2f2f7', fontSize: '13px' }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>

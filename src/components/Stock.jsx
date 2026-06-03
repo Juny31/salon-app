@@ -160,7 +160,7 @@ export default function Stock({ session }) {
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">📦 Nouveau produit</h2>
-              <button className="modal-close" onClick={() => setShowForm(false)}>✕</button>
+              <button className="modal-close" aria-label="Fermer" onClick={() => setShowForm(false)}>✕</button>
             </div>
             <form onSubmit={handleSave}>
               <div className="form-group">
@@ -191,7 +191,7 @@ export default function Stock({ session }) {
                     onChange={e => setForm({ ...form, min_stock: e.target.value })} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Prix unitaire (€)</label>
+                  <label className="form-label">Prix unitaire (FCFA)</label>
                   <input className="form-input" type="number" min="0" step="0.01" placeholder="0,00" value={form.price}
                     onChange={e => setForm({ ...form, price: e.target.value })} />
                 </div>
@@ -211,7 +211,7 @@ export default function Stock({ session }) {
           <div className="modal" style={{ maxWidth: '400px' }} onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">{movType === 'in' ? '📥 Entrée stock' : '📤 Sortie stock'}</h2>
-              <button className="modal-close" onClick={() => setShowMovement(null)}>✕</button>
+              <button className="modal-close" aria-label="Fermer" onClick={() => setShowMovement(null)}>✕</button>
             </div>
             <p style={{ marginBottom: '16px', color: 'var(--text-muted)', fontSize: '14px' }}>
               {showMovement.name} — stock actuel : <strong>{showMovement.stock_quantity} {showMovement.unit}</strong>
@@ -220,7 +220,7 @@ export default function Stock({ session }) {
               <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                 {[['in', '📥 Entrée'], ['out', '📤 Sortie']].map(([v, l]) => (
                   <button key={v} type="button"
-                    style={{ flex: 1, padding: '8px', borderRadius: '8px', border: `2px solid ${movType === v ? 'var(--primary)' : 'var(--border)'}`, background: movType === v ? '#EEF2FF' : 'var(--surface-2)', cursor: 'pointer', fontSize: '13px', fontWeight: movType === v ? 700 : 400, color: 'var(--text)' }}
+                    style={{ flex: 1, padding: '8px', borderRadius: '8px', border: `2px solid ${movType === v ? 'var(--accent)' : 'var(--border)'}`, background: movType === v ? 'var(--accent-dim)' : 'var(--card-2)', cursor: 'pointer', fontSize: '13px', fontWeight: movType === v ? 700 : 400, color: movType === v ? 'var(--accent-2)' : 'var(--text)' }}
                     onClick={() => setMovType(v)}>{l}</button>
                 ))}
               </div>
