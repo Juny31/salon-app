@@ -2,19 +2,20 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Dashboard'  },
-  { id: 'caisse',    label: 'Caisse'     },
-  { id: 'clients',   label: 'Clients'    },
-  { id: 'stock',     label: 'Stock'      },
-  { id: 'reports',   label: 'Rapports'   },
-  { id: 'services',  label: 'Services'   },
+  { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+  { id: 'caisse',    label: 'Caisse',    icon: '💰' },
+  { id: 'clients',   label: 'Clients',   icon: '👤' },
+  { id: 'stock',     label: 'Stock',     icon: '📦' },
+  { id: 'reports',   label: 'Rapports',  icon: '📈' },
+  { id: 'services',  label: 'Services',  icon: '✂️' },
 ]
 
-const NAV_ICONS = [
+const BOTTOM_NAV = [
   { id: 'dashboard', icon: '📊', short: 'Tableau' },
   { id: 'caisse',    icon: '💰', short: 'Caisse'  },
   { id: 'clients',   icon: '👤', short: 'Clients' },
   { id: 'stock',     icon: '📦', short: 'Stock'   },
+  { id: 'services',  icon: '✂️', short: 'Services'},
   { id: 'reports',   icon: '📈', short: 'Rapports'},
 ]
 
@@ -42,6 +43,7 @@ export default function Layout({ children, currentPage, setCurrentPage, session 
               className={`top-nav-item ${currentPage === item.id ? 'active' : ''}`}
               onClick={() => setCurrentPage(item.id)}
             >
+              <span className="top-nav-icon">{item.icon}</span>
               {item.label}
             </button>
           ))}
@@ -49,8 +51,6 @@ export default function Layout({ children, currentPage, setCurrentPage, session 
 
         {/* Right actions */}
         <div className="top-nav-right">
-          <button className="top-nav-icon-btn" title="Recherche">🔍</button>
-          <button className="top-nav-icon-btn" title="Notifications">🔔</button>
           <div style={{ position: 'relative' }}>
             <button className="mobile-user-btn" onClick={() => setShowUserMenu(v => !v)}>
               {userInitial}
@@ -79,7 +79,7 @@ export default function Layout({ children, currentPage, setCurrentPage, session 
 
       {/* ── Bottom nav (mobile only) ── */}
       <nav className="bottom-nav">
-        {NAV_ICONS.map(item => (
+        {BOTTOM_NAV.map(item => (
           <button
             key={item.id}
             className={`bottom-nav-item ${currentPage === item.id ? 'active' : ''}`}

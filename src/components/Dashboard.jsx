@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Cell, LinearGradient, defs,
+  ResponsiveContainer,
 } from 'recharts'
 
 const fmt = (n) => new Intl.NumberFormat('fr-FR', { style: 'decimal', maximumFractionDigits: 0 }).format(Math.round(n || 0)) + ' FCFA'
@@ -12,22 +12,6 @@ const fmtShort = (n) => {
 }
 
 const MONTHS_SHORT = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc']
-
-function StarRating({ value = 0 }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-      {[1,2,3,4,5].map(i => (
-        <span key={i} style={{
-          fontSize: '12px',
-          color: i <= Math.round(value) ? '#f59e0b' : 'rgba(255,255,255,0.15)',
-        }}>★</span>
-      ))}
-      <span style={{ fontSize: '11px', color: 'var(--text-3)', marginLeft: '4px' }}>
-        {value.toFixed(1)}
-      </span>
-    </div>
-  )
-}
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
@@ -237,18 +221,18 @@ export default function Dashboard({ session, setCurrentPage }) {
           </div>
 
           <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={barData} margin={{ top: 4, right: 4, left: -16, bottom: 0 }} barCategoryGap="30%">
-              <defs>
-                <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor="#ff5533" stopOpacity={1} />
-                  <stop offset="100%" stopColor="#8b1a00" stopOpacity={0.9} />
-                </linearGradient>
-              </defs>
+            <BarChart
+              data={
+                period === 'month'  ? barData.slice(now.getMonth(), now.getMonth() + 1) :
+                period === '6month' ? barData.slice(Math.max(0, now.getMonth() - 5), now.getMonth() + 1) :
+                barData
+              }
+              margin={{ top: 4, right: 4, left: -16, bottom: 0 }} barCategoryGap="30%">
               <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.04)" />
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'var(--text-3)' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: 'var(--text-3)' }} axisLine={false} tickLine={false} tickFormatter={fmtShort} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-              <Bar dataKey="ca" fill="url(#barGrad)" radius={[6, 6, 3, 3]} maxBarSize={40} />
+              <Bar dataKey="ca" fill="#e8391d" radius={[6, 6, 3, 3]} maxBarSize={40} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -274,17 +258,22 @@ export default function Dashboard({ session, setCurrentPage }) {
             <div className="person-list">
               {topClients.map((c, i) => (
                 <div key={c.id} className="person-item">
-                  <div className="person-avatar">
-                    {c.name[0].toUpperCase()}
+                  <div className="person-avatar" style={{
+                    background: i === 0 ? 'rgba(245,158,11,0.15)' : i === 1 ? 'rgba(167,139,250,0.12)' : 'var(--card-2)',
+                    color: i === 0 ? '#f59e0b' : i === 1 ? '#a78bfa' : 'var(--text-2)',
+                    borderColor: i === 0 ? 'rgba(245,158,11,0.3)' : i === 1 ? 'rgba(167,139,250,0.25)' : 'var(--border)',
+                    fontSize: i === 0 ? '16px' : '15px',
+                  }}>
+                    {i === 0 ? '🥇' : i === 1 ? '🥈' : c.name[0].toUpperCase()}
                   </div>
                   <div className="person-info">
                     <div className="person-name">{c.name}</div>
-                    <div style={{ marginTop: '4px' }}>
-                      <StarRating value={Math.min(5, 3.5 + (c.visits * 0.3))} />
+                    <div style={{ fontSize: '11.5px', color: 'var(--text-3)', marginTop: '3px' }}>
+                      {c.visits} visite{c.visits > 1 ? 's' : ''} ce mois
                     </div>
                   </div>
-                  <div className="person-count-badge">
-                    {c.visits} <span>visite{c.visits > 1 ? 's' : ''}</span>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--green)', fontVariantNumeric: 'tabular-nums' }}>
+                    {fmt(c.ca)}
                   </div>
                 </div>
               ))}

@@ -409,17 +409,32 @@ export default function Caisse({ session }) {
                 </div>
               )}
 
-              {/* Paiement — espèces uniquement */}
+              {/* Paiement */}
               <div className="form-group">
                 <label className="form-label">Paiement</label>
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: '10px',
-                  background: 'var(--card-2)', border: '1px solid var(--border)',
-                  borderRadius: '10px', padding: '12px 16px',
-                }}>
-                  <span style={{ fontSize: '20px' }}>💵</span>
-                  <span style={{ fontWeight: 600, fontSize: '14px' }}>Espèces</span>
-                  <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text-3)' }}>Seul mode accepté</span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {[
+                    { value: 'especes', label: 'Espèces', emoji: '💵' },
+                    { value: 'carte',   label: 'Carte',   emoji: '💳' },
+                    { value: 'virement',label: 'Virement',emoji: '🏦' },
+                  ].map(pm => {
+                    const active = form.payment_method === pm.value
+                    return (
+                      <button key={pm.value} type="button"
+                        onClick={() => setForm({ ...form, payment_method: pm.value })}
+                        style={{
+                          flex: 1, padding: '11px 8px', borderRadius: '12px', textAlign: 'center',
+                          border: `2px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                          background: active ? 'var(--accent-dim)' : 'var(--card-2)',
+                          cursor: 'pointer', transition: 'all 0.15s',
+                        }}>
+                        <div style={{ fontSize: '20px', marginBottom: '3px' }}>{pm.emoji}</div>
+                        <div style={{ fontSize: '12px', fontWeight: 600, color: active ? 'var(--accent-2)' : 'var(--text-2)' }}>
+                          {pm.label}
+                        </div>
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 
