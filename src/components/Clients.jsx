@@ -150,6 +150,12 @@ export default function Clients({ session }) {
             {selected.phone && <p className="page-subtitle">📞 {selected.phone}</p>}
           </div>
         </div>
+        <button
+          className="btn"
+          onClick={() => handleDelete(selected.id)}
+          style={{ background: 'rgba(239,68,68,0.12)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.25)' }}>
+          🗑 Supprimer
+        </button>
         {(selected.abonnement || selected.subscriptionTier) && (() => {
           const tier = selected.abonnement || selected.subscriptionTier
           const ts = TIER_STYLE[tier]
