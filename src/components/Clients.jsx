@@ -466,28 +466,41 @@ export default function Clients({ session }) {
               </div>
               {/* Abonnement */}
               <div className="form-group">
-                <label className="form-label">👑 Abonnement</label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                <label className="form-label">Abonnement</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {[
-                    { value: '', label: 'Aucun', emoji: '—', color: 'var(--text-3)', bg: 'var(--card-2)', border: 'var(--border)' },
-                    { value: 'Standard', label: 'Standard', emoji: '⭐', color: '#60a5fa', bg: 'rgba(96,165,250,0.10)', border: 'rgba(96,165,250,0.30)' },
-                    { value: 'Premium',  label: 'Premium',  emoji: '💎', color: '#a78bfa', bg: 'rgba(167,139,250,0.10)', border: 'rgba(167,139,250,0.30)' },
-                    { value: 'VIP',      label: 'VIP',      emoji: '👑', color: '#f59e0b', bg: 'rgba(245,158,11,0.10)',  border: 'rgba(245,158,11,0.30)'  },
-                  ].map(opt => (
-                    <button key={opt.value} type="button"
-                      onClick={() => setForm({ ...form, abonnement: opt.value })}
-                      style={{
-                        padding: '10px 6px', borderRadius: '10px', textAlign: 'center',
-                        border: `1.5px solid ${form.abonnement === opt.value ? opt.border : 'var(--border)'}`,
-                        background: form.abonnement === opt.value ? opt.bg : 'var(--card-2)',
-                        cursor: 'pointer', transition: 'all 0.15s',
-                      }}>
-                      <div style={{ fontSize: '18px', marginBottom: '3px' }}>{opt.emoji}</div>
-                      <div style={{ fontSize: '11px', fontWeight: 600, color: form.abonnement === opt.value ? opt.color : 'var(--text-2)' }}>
-                        {opt.label}
-                      </div>
-                    </button>
-                  ))}
+                    { value: '',         label: 'Sans abonnement', emoji: '👤', color: 'var(--text-2)', accent: 'var(--text-3)', bg: 'var(--card-2)',              border: 'var(--border)',              desc: 'Client occasionnel' },
+                    { value: 'Standard', label: 'Standard',        emoji: '⭐', color: '#60a5fa',       accent: '#60a5fa',       bg: 'rgba(96,165,250,0.12)',  border: 'rgba(96,165,250,0.40)',  desc: 'Abonnement de base' },
+                    { value: 'Premium',  label: 'Premium',         emoji: '💎', color: '#a78bfa',       accent: '#a78bfa',       bg: 'rgba(167,139,250,0.12)', border: 'rgba(167,139,250,0.40)', desc: 'Avantages exclusifs' },
+                    { value: 'VIP',      label: 'VIP',             emoji: '👑', color: '#f59e0b',       accent: '#f59e0b',       bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.40)',  desc: 'Traitement prioritaire' },
+                  ].map(opt => {
+                    const isSelected = form.abonnement === opt.value
+                    return (
+                      <button key={opt.value} type="button"
+                        onClick={() => setForm({ ...form, abonnement: opt.value })}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '12px',
+                          padding: '11px 14px', borderRadius: '12px', textAlign: 'left',
+                          border: `2px solid ${isSelected ? opt.border : 'var(--border)'}`,
+                          background: isSelected ? opt.bg : 'transparent',
+                          cursor: 'pointer', transition: 'all 0.15s', width: '100%',
+                        }}>
+                        <span style={{ fontSize: '20px', width: '26px', textAlign: 'center', flexShrink: 0 }}>{opt.emoji}</span>
+                        <div style={{ flex: 1, textAlign: 'left' }}>
+                          <div style={{ fontWeight: 700, fontSize: '13px', color: isSelected ? opt.color : 'var(--text-1)' }}>{opt.label}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-3)', marginTop: '1px' }}>{opt.desc}</div>
+                        </div>
+                        <div style={{
+                          width: '18px', height: '18px', borderRadius: '50%', flexShrink: 0,
+                          border: `2px solid ${isSelected ? opt.accent : 'var(--border)'}`,
+                          background: isSelected ? opt.accent : 'transparent',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          {isSelected && <span style={{ color: '#fff', fontSize: '10px', fontWeight: 900, lineHeight: 1 }}>✓</span>}
+                        </div>
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 
